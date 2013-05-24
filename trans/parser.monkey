@@ -355,6 +355,7 @@ Class Parser
 	Field _app:AppDecl
 	Field _module:ModuleDecl
 	Field _defattrs
+	Field _options:StringList
 	
 	Method SetErr()
 		If _toker.Path _errInfo=_toker.Path+"<"+_toker.Line+">"
@@ -389,7 +390,7 @@ Class Parser
 	
 	Method NextToke$()
 		Local toke$=_toke
-		
+
 		Repeat
 			_toke=_toker.NextToke()
 			_tokeType=_toker.TokeType()
@@ -1579,7 +1580,8 @@ Class Parser
 	End
 	
 	Method ImportModule( modpath$,attrs )
-	
+		If _options.Contains("ignoreModules") Return 
+			
 		Local filepath$
 		
 		Local cd$=CurrentDir
@@ -1672,6 +1674,7 @@ Class Parser
 		
 		'Parse header - imports etc.
 		While _toke
+			Print " token "+_toke
 			SetErr
 			Select _toke
 			Case "~n"
@@ -1774,10 +1777,12 @@ Class Parser
 		
 	End
 	
-	Method New( toker:Toker,app:AppDecl,mdecl:ModuleDecl=Null,defattrs=0 )
+	Method New( toker:Toker,app:AppDecl,mdecl:ModuleDecl=Null,defattrs=0, options:StringList=Null )
 		_toke="~n"
 		_toker=toker
 		_app=app
+		If options = Null options = New StringList()
+		_options=options
 		_module=mdecl
 		_defattrs=defattrs
 		SetErr
@@ -1789,11 +1794,11 @@ End
 '***** PUBLIC API ******
 
 'for reflector to tack on code to reflection module...
-Function ParseSource( source$,app:AppDecl,mdecl:ModuleDecl,defattrs=0 )
+Function ParseSource( source$,app:AppDecl,mdecl:ModuleDecl,defattrs=0, options:StringList=Null )
 
 	Local toker:=New Toker( "$SOURCE",source )
 	
-	Local parser:=New Parser( toker,app,mdecl,defattrs )
+	Local parser:=New Parser( toker,app,mdecl,defattrs,options )
 	
 	parser.ParseMain
 	

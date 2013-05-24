@@ -1,7 +1,11 @@
 
-#If TARGET="stdcpp" Or TARGET="glfw"
+#If TARGET="stdcpp" Or TARGET="glfw" Or TARGET="html5"
 
+#If TARGET="html5"
+Import "native/os.js"
+#Else 
 Import "native/os.cpp"
+#End
 
 Extern
 
